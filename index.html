@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Hacker News Top Stories</title>
+    <title>Hacker News Stories</title>
     <style>
         #content {
             font-family: Arial, sans-serif;
@@ -19,46 +19,73 @@
 </head>
 <body>
     <div id="content">
-        <h1>Hacker News Top Stories</h1>
-        <div id="top-stories-container"></div>
+        <h1>Hacker News Stories</h1>
+        <button id="mode-toggle-button">Switch to Best Stories</button>
+        <div id="stories-container"></div>
     </div>
 
     <script>
         const topStoriesUrl = 'https://hacker-news.firebaseio.com/v0/topstories.json';
+        const bestStoriesUrl = 'https://hacker-news.firebaseio.com/v0/beststories.json';
+        let currentMode = 'top';  // Start in "top" mode
 
-        // Fetch the top story IDs
-        fetch(topStoriesUrl)
-            .then(response => response.json())
-            .then(topStoryIds => {
-                // Only keep the first 10 story IDs
-                topStoryIds = topStoryIds.slice(0, 10);
+        // Function to fetch and display stories
+        function fetchAndDisplayStories(url) {
+            // Clear the current list of stories
+            document.getElementById('stories-container').innerHTML = '';
 
-                // Fetch each story
-                topStoryIds.forEach(id => {
-                    fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
-                        .then(response => response.json())
-                        .then(story => {
-                            // Create a container for the story
-                            const storyDiv = document.createElement('div');
-                            storyDiv.className = 'story';
+            // Fetch the story IDs
+            fetch(url)
+                .then(response => response.json())
+                .then(storyIds => {
+                    // Only keep the first 10 story IDs
+                    storyIds = storyIds.slice(0, 10);
 
-                            // Create a title link for the story
-                            const storyTitle = document.createElement('a');
-                            storyTitle.className = 'story-title';
-                            storyTitle.textContent = story.title;
-                            storyTitle.href = story.url;
-                            storyDiv.appendChild(storyTitle);
+                    // Fetch each story
+                    storyIds.forEach(id => {
+                        fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
+                            .then(response => response.json())
+                            .then(story => {
+                                // Create a container for the story
+                                const storyDiv = document.createElement('div');
+                                storyDiv.className = 'story';
 
-                            // Create a paragraph for the story details
-                            const storyDetails = document.createElement('p');
-                            storyDetails.textContent = `Score: ${story.score} | Comments: ${story.descendants}`;
-                            storyDiv.appendChild(storyDetails);
+                                // Create a title link for the story
+                                const storyTitle = document.createElement('a');
+                                storyTitle.className = 'story-title';
+                                storyTitle.textContent = story.title;
+                                storyTitle.href = story.url;
+                                storyDiv.appendChild(storyTitle);
 
-                            // Add the story to the container
-                            document.getElementById('top-stories-container').appendChild(storyDiv);
-                        });
+                                // Create a paragraph for the story details
+                                const storyDetails = document.createElement('p');
+                                storyDetails.textContent = `Score: ${story.score} | Comments: ${story.descendants}`;
+                                storyDiv.appendChild(storyDetails);
+
+                                // Add the story to the container
+                                document.getElementById('stories-container').appendChild(storyDiv);
+                            });
+                    });
                 });
-            });
+        }
+
+        // Fetch and display the top stories initially
+        fetchAndDisplayStories(topStoriesUrl);
+
+        // Add an event listener to the mode toggle button
+        document.getElementById('mode-toggle-button').addEventListener('click', () => {
+            if (currentMode === 'top') {
+                // Switch to "best" mode
+                currentMode = 'best';
+                document.getElementById('mode-toggle-button').textContent = 'Switch to Top Stories';
+                fetchAndDisplayStories(bestStoriesUrl);
+            } else {
+                // Switch to "top" mode
+                currentMode = 'top';
+                document.getElementById('mode-toggle-button').textContent = 'Switch to Best Stories';
+                fetchAndDisplayStories(topStoriesUrl);
+            }
+        });
     </script>
 </body>
 </html>
