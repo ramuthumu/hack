@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hacker News Top Stories</title>
+    <style>
+        #content {
+            font-family: Arial, sans-serif;
+            margin: auto;
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <h1>Hacker News Top Stories</h1>
+        <ul id="top-stories-list"></ul>
+    </div>
+
+    <script>
+        const topStoriesUrl = 'https://hacker-news.firebaseio.com/v0/topstories.json';
+
+        // Fetch the top story IDs
+        fetch(topStoriesUrl)
+            .then(response => response.json())
+            .then(topStoryIds => {
+                // Only keep the first 10 story IDs
+                topStoryIds = topStoryIds.slice(0, 10);
+
+                // Fetch each story
+                topStoryIds.forEach(id => {
+                    fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
+                        .then(response => response.json())
+                        .then(story => {
+                            // Add the story to the list
+                            const listItem = document.createElement('li');
+                            const link = document.createElement('a');
+                            link.textContent = story.title;
+                            link.href = story.url;
+                            listItem.appendChild(link);
+                            document.getElementById('top-stories-list').appendChild(listItem);
+                        });
+                });
+            });
+    </script>
+</body>
+</html>
