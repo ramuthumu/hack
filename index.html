@@ -8,12 +8,19 @@
             margin: auto;
             width: 50%;
         }
+        .story {
+            margin-bottom: 1em;
+        }
+        .story-title {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div id="content">
         <h1>Hacker News Top Stories</h1>
-        <ul id="top-stories-list"></ul>
+        <div id="top-stories-container"></div>
     </div>
 
     <script>
@@ -31,13 +38,24 @@
                     fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
                         .then(response => response.json())
                         .then(story => {
-                            // Add the story to the list
-                            const listItem = document.createElement('li');
-                            const link = document.createElement('a');
-                            link.textContent = story.title;
-                            link.href = story.url;
-                            listItem.appendChild(link);
-                            document.getElementById('top-stories-list').appendChild(listItem);
+                            // Create a container for the story
+                            const storyDiv = document.createElement('div');
+                            storyDiv.className = 'story';
+
+                            // Create a title link for the story
+                            const storyTitle = document.createElement('a');
+                            storyTitle.className = 'story-title';
+                            storyTitle.textContent = story.title;
+                            storyTitle.href = story.url;
+                            storyDiv.appendChild(storyTitle);
+
+                            // Create a paragraph for the story details
+                            const storyDetails = document.createElement('p');
+                            storyDetails.textContent = `Score: ${story.score} | Comments: ${story.descendants}`;
+                            storyDiv.appendChild(storyDetails);
+
+                            // Add the story to the container
+                            document.getElementById('top-stories-container').appendChild(storyDiv);
                         });
                 });
             });
